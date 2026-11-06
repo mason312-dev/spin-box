@@ -1,0 +1,18 @@
+{
+  "name": "TemuSpinBox",
+  "short_name": "TemuSpinBox",
+  "description": "Your next great find. A spin away. Independent product spin platform. 18+.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1b1918",
+  "theme_color": "#1b1918",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

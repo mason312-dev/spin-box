@@ -1,0 +1,61 @@
+# Environment variables and local overrides (frontend and server)
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+.envrc
+
+# Private key and certificate bundles
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Dependencies and generated builds
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.cache/
+*.tsbuildinfo
+
+# Logs and test output
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+coverage/
+playwright-report/
+test-results/
+playwright/.auth/
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/
+
+# Local design preview
+/.landing-preview.html
+/src/landing-preview.jsx
+
+# Editor and operating system files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+LANDING-UPDATE.md
+temuspin-tree.txt
+temuspin-server-tree.txt
+
+.puppeteer_profile
+docs

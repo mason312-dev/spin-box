@@ -1,0 +1,22 @@
+.tsb-orders { padding: clamp(16px, 3vw, 28px); background: #262220; border: 1px solid #66564b; overflow-wrap: anywhere; }
+.tsb-orders header > p { margin-bottom: 4px; color: #ffad99; font-size: 13px; font-weight: 700; }
+.tsb-orders h2, .tsb-orders h3 { font-family: 'Outfit Variable', sans-serif; letter-spacing: -.03em; line-height: 1.12; }
+.tsb-orders h2 { font-size: 34px; }
+.tsb-orders h3 { font-size: 22px; }
+.orders-list { list-style: none; padding: 0; margin: 0; }
+.orders-empty { display: flex; align-items: center; gap: 10px; margin-top: 14px; color: #dbcabd; }
+.orders-item { padding-block: 16px; border-top: 1px solid #69584d; margin-top: 10px; }
+.orders-item:last-child { padding-bottom: 0; }
+.orders-item-heading { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 8px; }
+.orders-item-heading p { margin-top: 5px; color: #dbcabd; font-size: 14px; }
+.orders-status { background: #e9dcc4; color: #30241c; font-size: 13px; font-weight: 700; padding: 5px 9px; }
+.orders-claim { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; margin-top: 10px; padding: 8px 12px; border: 0; border-radius: 3px; background: #ff7057; color: #28140e; font: inherit; font-weight: 750; cursor: pointer; }
+.orders-claim:hover { background: #ff9c89; }
+.orders-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; list-style: none; padding: 0; margin-top: 14px; }
+.orders-steps li { padding-top: 5px; border-top: 3px solid #78675d; color: #dbcabd; font-size: 12px; }
+.orders-steps [data-reached="true"] { border-color: #b7c097; color: #f1eee7; }
+.orders-steps [aria-current="step"] { font-weight: 750; }
+.orders-detail { margin-top: 10px; color: #dbcabd; font-size: 14px; }
+@media (max-width: 380px) {
+  .orders-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

@@ -1,0 +1,26 @@
+:root {
+  /* Slate Dark Core Palette */
+  --bg-main: #0d1117;
+  --bg-card: #161b22;
+  --bg-card-hover: #21262d;
+  --border-subtle: #30363d;
+
+  /* Brand Accents */
+  --accent-coral: #ff5000;
+  --accent-coral-active: #e04600;
+  --accent-coral-subtle: rgba(255, 80, 0, 0.12);
+  --accent-emerald: #09b85d;
+  --accent-emerald-subtle: rgba(9, 184, 93, 0.12);
+  --accent-blue: #2f81f7;
+
+  /* Typography */
+  --text-primary: #f0f6fc;
+  --text-secondary: #8b949e;
+
+  /* Radii & Transitions */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --transition-fast: 0.15s ease;
+}

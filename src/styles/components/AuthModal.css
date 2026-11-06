@@ -1,0 +1,138 @@
+.tsb-auth-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(720px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #746257;
+  border-top: 3px solid #ff7057;
+  border-radius: 4px;
+  background: #262220;
+  color: #f1eee7;
+  box-shadow: 8px 8px 0 #0e0c0b;
+  font-family: 'DM Sans Variable', Arial, sans-serif;
+}
+.tsb-auth-dialog::backdrop { background: rgb(15 13 12 / 79%); }
+.tsb-auth-dialog :focus-visible { outline: 2px solid #ff947e; outline-offset: 3px; }
+
+.tsb-auth-layout { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); }
+.tsb-auth-ticket {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 26px 22px 20px;
+  background: #e6d8bf;
+  color: #34271e;
+}
+.tsb-auth-ticket .tsb-brand { color: inherit; font-size: 20px; }
+.tsb-auth-ticket .tsb-brand-accent { color: #9f3828; }
+.tsb-auth-art {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: min(145px, 100%);
+  aspect-ratio: 1;
+  border: 1px solid #887259;
+  box-shadow: 5px 5px 0 #c8ad89;
+  transform: rotate(-7deg);
+}
+.tsb-auth-ticket-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px dashed #8b775e;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.tsb-auth-content { min-width: 0; padding: 22px 32px 32px; }
+.tsb-auth-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.tsb-auth-top p { margin: 0; color: #ffad9b; font-size: 13px; font-weight: 700; }
+.tsb-auth-close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #76665c;
+  border-radius: 3px;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.tsb-auth-close:hover { background: #3b302a; }
+
+.tsb-auth-content h2 {
+  margin: 12px 0 8px;
+  font: 620 clamp(30px, 5vw, 43px)/1 'Outfit Variable', Arial, sans-serif;
+  letter-spacing: -.045em;
+}
+.tsb-auth-description { margin: 0 0 26px; color: #d9cdc3; font-size: 15px; line-height: 1.55; overflow-wrap: anywhere; }
+.tsb-auth-description strong { color: #f1eee7; }
+.tsb-auth-content form { display: grid; gap: 10px; }
+.tsb-auth-content label { font-size: 14px; font-weight: 700; }
+.tsb-auth-content input {
+  width: 100%;
+  min-width: 0;
+  min-height: 50px;
+  padding: 10px 13px;
+  border: 1px solid #918075;
+  border-radius: 3px;
+  background: #1b1918;
+  color: #f1eee7;
+  font: inherit;
+  font-size: 16px;
+}
+.tsb-auth-content input::placeholder { color: #ac9c8f; opacity: 1; }
+.tsb-auth-content .tsb-auth-code { font-size: 23px; font-weight: 700; text-align: center; letter-spacing: .36em; font-variant-numeric: tabular-nums; }
+.tsb-auth-submit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  min-height: 50px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: #ff7057;
+  color: #28140e;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+.tsb-auth-submit:hover:not(:disabled) { background: #ff937e; }
+.tsb-auth-submit:disabled { background: #463a34; color: #ddcfc3; cursor: default; }
+
+.tsb-auth-recovery { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin-top: 8px; }
+.tsb-auth-recovery button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  border: 0;
+  padding: 0 2px;
+  background: transparent;
+  color: #f1eee7;
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+  cursor: pointer;
+}
+.tsb-auth-recovery button:disabled { opacity: .65; cursor: default; }
+.tsb-auth-feedback { margin: 2px 0; padding: 9px 12px; border-left: 2px solid #ccdaa8; background: #323528; color: #f1eee7; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+.tsb-auth-feedback.is-error { border-color: #ff947e; background: #3b2621; }
+
+@media (max-width: 600px) {
+  .tsb-auth-layout { grid-template-columns: minmax(0, 1fr); }
+  .tsb-auth-ticket { padding: 12px 20px; }
+  .tsb-auth-art, .tsb-auth-ticket-footer { display: none; }
+  .tsb-auth-content { padding: 10px 20px 24px; }
+  .tsb-auth-description { margin-bottom: 20px; }
+}

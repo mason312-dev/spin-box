@@ -1,0 +1,18 @@
+.play-inspector { margin-top: 22px; }
+.play-inspector label { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; font-size: 14px; font-weight: 700; }
+.play-inspector-input { display: flex; flex-wrap: wrap; gap: 8px; }
+.play-inspector input {
+  flex: 1 1 170px;
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  border: 1px solid #857268;
+  border-radius: 3px;
+  background: #1b1918;
+  color: #f1eee7;
+  font: inherit;
+  font-size: 16px;
+  padding: 8px 11px;
+}
+.play-inspector input::placeholder { color: #b9a99b; }
+.play-inspector-error { color: #ffd0c1; margin: 10px 0 0; font-size: 14px; }
