@@ -34,7 +34,7 @@ function getSections(tab, money) {
   ];
 
   if (tab === 'rules') return [
-    ['welcome', 'The welcome spin', <>The free welcome wheel runs a scripted sequence. Eligible new players get two retries, then a welcome reward worth {money(1)}. Verify your email to claim the reward and use it to play for eligible items worth up to {money(2)}. Paid rounds follow separate rules.</>],
+    ['welcome', 'The welcome spin', <>Eligible new players can complete the free welcome wheel to unlock a reward worth {money(1)}. Verify your email to claim it and play for eligible items worth up to {money(2)}. Paid rounds follow separate rules.</>],
     ['stake', 'The amount at stake', 'Your wallet balance shows the money held in your account. Your stake is the amount committed to a specific round. Check the item and the stake shown before confirming.'],
     ['outcomes', 'The three outcomes', <dl className="tsb-legal-outcomes">
       <div><dt>Win item</dt><dd>You win the selected item. See the delivery and wallet options below.</dd></div>

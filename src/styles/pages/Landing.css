@@ -84,3 +84,19 @@
   font: inherit;
   cursor: pointer;
 }
+
+/* Keep decision-making copy readable on the landing page. */
+.tsb-game-hero h1 { font-size: clamp(46px, 5.9vw, 82px); }
+.tsb-game-hero .tsb-risk,
+.tsb-game-hero .welcome-game-disclosure,
+.tsb-landing .tsb-option-note,
+.tsb-landing .tsb-outcome-detail,
+.tsb-landing .tsb-proof-fine,
+.tsb-landing .tsb-referral-fine {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.tsb-game-hero .tsb-risk { color: #d6cabc; }
+@media (max-width: 760px) {
+  .tsb-game-hero h1 { font-size: clamp(38px, 10.8vw, 59px); }
+}

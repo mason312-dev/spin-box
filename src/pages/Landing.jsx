@@ -14,7 +14,7 @@ const OUTCOMES = [
   { id: 'retry', label: 'Try again', title: 'Retry with the same stake.', text: 'A retry gives you another attempt with the same round stake, without paying for that attempt again.', detail: 'A retry is not a win or a promise of a later win.', icon: ArrowClockwiseIcon },
 ];
 const FAQS = [
-  ['How does the welcome spin work?', 'Try the free welcome wheel without depositing. The welcome sequence gives two retries, then a $1 USD reward. Verify your email to claim it for an eligible new account. Use it to play for items worth up to $2 USD. The welcome sequence is separate from paid-game odds.'],
+  ['Do I need to deposit to try it?', 'No. The welcome wheel is free to try.'],
   ['What is TemuSpinBox?', 'An independent platform where you select a Temu product and spin for a chance to win it. Paid rounds involve a monetary stake, and you can lose the full stake. TemuSpinBox is not owned by or affiliated with Temu.'],
   ['Can I choose the product?', 'You can paste a Temu product link in the app. Product verification and eligibility determine which items are available for your account. The products on this page are illustrations, not live listings.'],
   ['What happens if I win?', 'You can request physical delivery for eligible items or choose 50% of the recorded product value as wallet money. The current physical-delivery threshold is $33 USD. Review the app’s rules for eligibility before participating.'],
@@ -45,19 +45,16 @@ export default function Landing({ onUnlockWelcomeCredit }) {
     <main id="main-content" className="tsb-landing">
       <section className="tsb-hero tsb-game-hero tsb-wrap" aria-labelledby="landing-title">
         <div className="tsb-hero-copy">
-          <p className="tsb-kicker"><GiftIcon size={18} /> Your welcome spin is free.</p>
-          <h1 id="landing-title">Start with<br /><span>a free spin.</span></h1>
-          <p className="tsb-lead">Spin for your {formatMoney(1)} welcome reward. Verify your email to claim it, then play for eligible items worth up to {formatMoney(2)}.</p>
-          <div className="tsb-welcome-ticket"><span>Free to try</span><strong>{formatMoney(1)}</strong><small>Welcome reward for eligible new accounts</small></div>
-          <a className="tsb-text-link" href="#how-it-works">What happens after the welcome spin? <ArrowRightIcon size={17} /></a>
-          <p className="tsb-risk">18+ only. No deposit for the welcome spin. Paid rounds can lose the full stake.</p>
+          <p className="tsb-kicker"><GiftIcon size={18} /> New player offer</p>
+          <h1 id="landing-title">Pick a Temu item.<br /><span>Spin for it.</span></h1>
+          <p className="tsb-lead">Try the welcome wheel for free. Eligible new players can claim {formatMoney(1)} after verifying their email and play for items worth up to {formatMoney(2)}.</p>
+          <a className="tsb-text-link" href="#how-it-works">How it works <ArrowRightIcon size={17} /></a>
+          <p className="tsb-risk">18+ only. You can lose money on paid spins.</p>
         </div>
         <WelcomeWheel onClaim={onUnlockWelcomeCredit} />
       </section>
 
-      <section className="tsb-pick-playground tsb-wrap" aria-labelledby="pick-title"><div className="tsb-pick-intro"><p className="tsb-kicker">What would you spin for?</p><h2 id="pick-title">Your item.<br /><span>Your choice.</span></h2><div className="tsb-pick-buttons">{Object.entries(picks).map(([id, item]) => { const Icon = item.icon; return <button type="button" key={id} onClick={() => setPick(id)} aria-pressed={pick === id}><Icon size={21} />{item.label}</button>; })}</div><div className="tsb-pick-detail" aria-live="polite"><PickIcon size={28} /><h3>{picks[pick].title}</h3><p>{picks[pick].text}</p></div><button className="tsb-text-link" type="button" onClick={onUnlockWelcomeCredit}>Choose a product in the app <ArrowUpRightIcon size={17} /></button></div><figure className={`tsb-pick-art tsb-pick-art-${pick}`}><img src="/images/wishlist-editorial.png" width="1122" height="1402" alt="Illustrative collection of headphones, fashion and home items" loading="lazy" /><figcaption>Illustrations, not live product listings.</figcaption></figure></section>
-
-      <div className="tsb-collection-line tsb-wrap"><span>Choose an item.</span><span aria-hidden="true">✳</span><span>Understand the round.</span><span aria-hidden="true">✳</span><span>Decide whether to play.</span></div>
+      <section className="tsb-pick-playground tsb-wrap" aria-labelledby="pick-title"><div className="tsb-pick-intro"><p className="tsb-kicker">What would you spin for?</p><h2 id="pick-title">Play for something<br /><span>you actually want.</span></h2><div className="tsb-pick-buttons">{Object.entries(picks).map(([id, item]) => { const Icon = item.icon; return <button type="button" key={id} onClick={() => setPick(id)} aria-pressed={pick === id}><Icon size={21} />{item.label}</button>; })}</div><div className="tsb-pick-detail" aria-live="polite"><PickIcon size={28} /><h3>{picks[pick].title}</h3><p>{picks[pick].text}</p></div><button className="tsb-text-link" type="button" onClick={onUnlockWelcomeCredit}>Choose a product in the app <ArrowUpRightIcon size={17} /></button></div><figure className={`tsb-pick-art tsb-pick-art-${pick}`}><img src="/images/wishlist-editorial.png" width="1122" height="1402" alt="Illustrative collection of headphones, fashion and home items" loading="lazy" /><figcaption>Examples of items you might choose.</figcaption></figure></section>
 
       <section id="how-it-works" className="tsb-section tsb-wrap" aria-labelledby="how-title">
         <div className="tsb-section-heading"><p className="tsb-kicker">How it works</p><h2 id="how-title">Claim it.<br /><span>Then choose your item.</span></h2><p>Your welcome reward covers eligible items up to {formatMoney(2)}. Deposit if you want to target higher-value products.</p></div>
@@ -86,7 +83,7 @@ export default function Landing({ onUnlockWelcomeCredit }) {
 
       <section className="tsb-faq-section tsb-wrap" id="questions" aria-labelledby="faq-title"><div><p className="tsb-kicker">Before you start</p><h2 id="faq-title">Your questions,<br />answered.</h2><Link to="/legal?tab=terms" className="tsb-text-link">Terms & conditions <ArrowUpRightIcon size={18} /></Link></div><div className="tsb-faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span className="tsb-faq-plus"><PlusIcon size={18} /></span></summary><p>{answer}</p></details>)}</div></section>
 
-      <section className="tsb-final tsb-wrap" aria-labelledby="final-title"><div className="tsb-final-inner"><p className="tsb-kicker">Try the welcome wheel first.</p><h2 id="final-title">Your next move?<br /><span>Take your free spin.</span></h2><a className="tsb-button tsb-button-dark" href="#welcome-game">Back to the welcome wheel <ArrowUpRightIcon size={20} /></a><p>18+ only. Welcome reward for eligible new accounts.</p><img className="tsb-final-mark" src="/reveal-fold.svg" alt="" width="280" height="280" aria-hidden="true" /></div></section>
+      <section className="tsb-final tsb-wrap" aria-labelledby="final-title"><div className="tsb-final-inner"><h2 id="final-title">Ready to try the<br /><span>welcome wheel?</span></h2><a className="tsb-button tsb-button-dark" href="#welcome-game">Try the free wheel <ArrowUpRightIcon size={20} /></a><p>18+ only. Welcome reward for eligible new accounts.</p><img className="tsb-final-mark" src="/reveal-fold.svg" alt="" width="280" height="280" aria-hidden="true" /></div></section>
       <div className="tsb-currency-note tsb-wrap" role="status">{currency !== 'USD' ? hasRate ? `Converted amounts are approximate. Reference rates updated ${new Date(rateData.updatedAt).toLocaleDateString('en-GB')}. ` : (rateError || rateData) ? 'Exchange rates are unavailable. Amounts are shown in USD. ' : 'Loading exchange rates. Amounts are shown in USD. ' : 'Amounts are shown in USD. '}Display conversions are not payment quotes. <a href="https://www.exchangerate-api.com" target="_blank" rel="noreferrer">Rates By Exchange Rate API</a></div>
     </main>
   );

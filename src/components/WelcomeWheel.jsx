@@ -98,7 +98,7 @@ export default function WelcomeWheel({ onClaim }) {
   return (
     <section className={`welcome-game${ready ? ' welcome-game-ready' : ''}`} id="welcome-game" aria-labelledby="welcome-game-title">
       <div className="welcome-game-top"><span><GiftIcon size={17} /> New player welcome</span><button type="button" className="welcome-sound" onClick={toggleSound} aria-pressed={sound} aria-label={sound ? 'Mute wheel sound' : 'Enable wheel sound'}>{sound ? <SpeakerHighIcon size={19} /> : <SpeakerSlashIcon size={19} />}</button></div>
-      <h2 id="welcome-game-title">{ready ? 'Your welcome reward' : 'Your first spin is on us.'}</h2>
+      <h2 id="welcome-game-title">{ready ? 'Your welcome reward' : 'Free welcome wheel'}</h2>
       <div className="welcome-wheel-shell">
         <div className="welcome-wheel-pointer" aria-hidden="true" />
         <svg className="welcome-wheel-disc" ref={disc} viewBox="0 0 500 500" aria-hidden="true">
@@ -116,7 +116,7 @@ export default function WelcomeWheel({ onClaim }) {
       <div className="welcome-reward-line"><span>{ready ? 'Ready to claim' : 'Welcome reward'}</span><strong>{reward}</strong></div>
       <p className="welcome-feedback" role="status" aria-live="polite">{ready ? 'Verify your email to claim your welcome reward.' : message}</p>
       {ready ? <button type="button" className="tsb-button welcome-spin-button" onClick={onClaim}>Claim {reward} <ArrowUpRightIcon size={19} /></button> : <button type="button" className="tsb-button welcome-spin-button" onClick={spin} disabled={spinning}>{spinning ? 'Spinning…' : step ? 'Try again for free' : 'Spin for free'}<ArrowClockwiseIcon size={20} /></button>}
-      <p className="welcome-game-disclosure">{ready ? `For eligible new accounts. Use it on items worth up to ${formatMoney(2)}.` : 'A scripted welcome sequence, separate from paid-game odds. No money is at stake here.'}</p>
+      {ready && <p className="welcome-game-disclosure">For eligible new accounts. Use it on items worth up to {formatMoney(2)}.</p>}
     </section>
   );
 }
