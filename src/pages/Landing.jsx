@@ -3,23 +3,20 @@ import { Link } from 'react-router';
 import { ArrowUpRightIcon, ArrowRightIcon, PackageIcon, WalletIcon, LinkSimpleIcon, ArrowClockwiseIcon, MinusIcon, PlusIcon, CheckIcon, GiftIcon, HeadphonesIcon, SneakerIcon, LampIcon } from '@phosphor-icons/react';
 import '@styles/pages/Landing.css';
 import WelcomeWheel from '@components/WelcomeWheel';
-import ReferralPreview from '@components/ReferralPreview';
-import ProofRewardsPreview from '@components/ProofRewardsPreview';
 import RevealIllustration from '@components/RevealIllustration';
 import { useCurrency } from '@/context/CurrencyContext';
 
 const OUTCOMES = [
-  { id: 'win', label: 'Win the item', title: 'You win the item.', text: 'Win your selected item, then choose physical delivery where eligible or take 50% of its value into your wallet.', detail: 'Delivery eligibility and withdrawal conditions apply.', icon: PackageIcon },
-  { id: 'lose', label: 'Lose the stake', title: 'You lose the round’s stake.', text: 'A losing round uses the full amount you committed to that round. Winning is never guaranteed.', detail: 'Only play with an amount you can afford to lose.', icon: MinusIcon },
-  { id: 'retry', label: 'Try again', title: 'Retry with the same stake.', text: 'A retry gives you another attempt with the same round stake, without paying for that attempt again.', detail: 'A retry is not a win or a promise of a later win.', icon: ArrowClockwiseIcon },
+  { id: 'win', label: 'Win the item', title: 'You win the item.', text: 'Your stake is spent and you win the item. Request delivery if eligible, or choose a wallet payout worth half its value.', detail: 'Delivery eligibility and withdrawal conditions apply.', icon: PackageIcon },
+  { id: 'lose', label: 'Lose', title: 'You lose your stake.', text: 'The full stake is spent and the round ends.', detail: 'Only play with an amount you can afford to lose.', icon: MinusIcon },
+  { id: 'retry', label: 'Try again', title: 'Spin again at no extra cost.', text: 'Your stake stays with the same item. You can pick up the round later.', detail: 'A retry is not a win or a promise of a later win.', icon: ArrowClockwiseIcon },
 ];
 const FAQS = [
   ['Do I need to deposit to try it?', 'No. The welcome wheel is free to try.'],
-  ['What is TemuSpinBox?', 'An independent platform where you select a Temu product and spin for a chance to win it. Paid rounds involve a monetary stake, and you can lose the full stake. TemuSpinBox is not owned by or affiliated with Temu.'],
+  ['What is TemuSpinBox?', 'An independent platform where you select a Temu product and spin for a chance to win it. A paid spin can cost money even if you don’t win. TemuSpinBox is not owned by or affiliated with Temu.'],
   ['Can I choose the product?', 'You can paste a Temu product link in the app. Product verification and eligibility determine which items are available for your account. The products on this page are illustrations, not live listings.'],
   ['What happens if I win?', 'You can request physical delivery for eligible items or choose 50% of the recorded product value as wallet money. The current physical-delivery threshold is $33 USD. Review the app’s rules for eligibility before participating.'],
-  ['Is wallet money the same as a crypto withdrawal?', 'No. Money added to your TemuSpinBox wallet stays inside the platform until you request a withdrawal. External crypto withdrawals are processed separately and are subject to minimums, network conditions and review.'],
-  ['How do proof rewards work?', 'The app includes a proof-submission program for eligible delivery or cash-out posts. Submissions are reviewed. Check the reward amount and conditions shown in the app; posting does not automatically approve a reward.'],
+  ['Can I withdraw a wallet payout?', 'Open Wallet to request a transfer to an external crypto wallet. The minimum amount is shown there.'],
   ['Who can participate?', 'You must be at least 18 and eligible to participate in your location. Read the rules before depositing or playing. Participation involves financial risk.'],
 ];
 
@@ -47,7 +44,7 @@ export default function Landing({ onUnlockWelcomeCredit }) {
         <div className="tsb-hero-copy">
           <p className="tsb-kicker"><GiftIcon size={18} /> New player offer</p>
           <h1 id="landing-title">Pick a Temu item.<br /><span>Spin for it.</span></h1>
-          <p className="tsb-lead">Try the welcome wheel for free. Eligible new players can claim {formatMoney(1)} after verifying their email and play for items worth up to {formatMoney(2)}.</p>
+          <p className="tsb-lead">Try the welcome wheel for free. Eligible new accounts get {formatMoney(1)} in welcome credit to play for items worth up to {formatMoney(2)}.</p>
           <a className="tsb-text-link" href="#how-it-works">How it works <ArrowRightIcon size={17} /></a>
           <p className="tsb-risk">18+ only. You can lose money on paid spins.</p>
         </div>
@@ -57,11 +54,11 @@ export default function Landing({ onUnlockWelcomeCredit }) {
       <section className="tsb-pick-playground tsb-wrap" aria-labelledby="pick-title"><div className="tsb-pick-intro"><p className="tsb-kicker">What would you spin for?</p><h2 id="pick-title">Play for something<br /><span>you actually want.</span></h2><div className="tsb-pick-buttons">{Object.entries(picks).map(([id, item]) => { const Icon = item.icon; return <button type="button" key={id} onClick={() => setPick(id)} aria-pressed={pick === id}><Icon size={21} />{item.label}</button>; })}</div><div className="tsb-pick-detail" aria-live="polite"><PickIcon size={28} /><h3>{picks[pick].title}</h3><p>{picks[pick].text}</p></div><button className="tsb-text-link" type="button" onClick={onUnlockWelcomeCredit}>Choose a product in the app <ArrowUpRightIcon size={17} /></button></div><figure className={`tsb-pick-art tsb-pick-art-${pick}`}><img src="/images/wishlist-editorial.png" width="1122" height="1402" alt="Illustrative collection of headphones, fashion and home items" loading="lazy" /><figcaption>Examples of items you might choose.</figcaption></figure></section>
 
       <section id="how-it-works" className="tsb-section tsb-wrap" aria-labelledby="how-title">
-        <div className="tsb-section-heading"><p className="tsb-kicker">How it works</p><h2 id="how-title">Claim it.<br /><span>Then choose your item.</span></h2><p>Your welcome reward covers eligible items up to {formatMoney(2)}. Deposit if you want to target higher-value products.</p></div>
+        <div className="tsb-section-heading"><p className="tsb-kicker">How it works</p><h2 id="how-title">Choose an item.<br /><span>Then spin for it.</span></h2><p>Use your welcome credit to play for eligible items worth up to {formatMoney(2)}.</p></div>
         <div className="tsb-steps"><div className="tsb-step-thread" aria-hidden="true" />
           <article><div className="tsb-step-top"><span>01</span><LinkSimpleIcon size={27} /></div><h3>Paste the link.</h3><p>Paste a Temu product link. The app checks the item’s details and price.</p></article>
-          <article><div className="tsb-step-top"><span>02</span><WalletIcon size={27} /></div><h3>Review your stake.</h3><p>Review the item, the amount at stake, and the rules before choosing to play.</p></article>
-          <article><div className="tsb-step-top"><span>03</span><ArrowClockwiseIcon size={27} /></div><h3>Spin the wheel.</h3><p>Win the item, lose the stake, or get a retry. Each outcome has a clear meaning.</p></article>
+          <article><div className="tsb-step-top"><span>02</span><WalletIcon size={27} /></div><h3>Review your stake.</h3><p>Check the item value and how much you’re putting into the round.</p></article>
+          <article><div className="tsb-step-top"><span>03</span><ArrowClockwiseIcon size={27} /></div><h3>Spin the wheel.</h3><p>Win the item, lose your stake, or spin again using the same stake.</p></article>
         </div>
       </section>
 
@@ -73,13 +70,11 @@ export default function Landing({ onUnlockWelcomeCredit }) {
         </div>
       </div></section>
 
-      <section id="your-win" className="tsb-section tsb-wrap" aria-labelledby="win-title"><div className="tsb-section-heading"><p className="tsb-kicker">After a win</p><h2 id="win-title">Get the item.<br /><span>Or take the cash option.</span></h2><p>Choose delivery where eligible, or take<br className="tsb-desktop-break" /> 50% of the item’s value into your wallet.</p></div>
+      <section id="your-win" className="tsb-section tsb-wrap" aria-labelledby="win-title"><div className="tsb-section-heading"><p className="tsb-kicker">After a win</p><h2 id="win-title">Get the item.<br /><span>Or take a wallet payout.</span></h2><p>Choose delivery where eligible, or take<br className="tsb-desktop-break" /> 50% of the item’s value into your wallet.</p></div>
         <div className="tsb-win-options"><article className="tsb-delivery"><div className="tsb-option-heading"><span>Product delivery</span><PackageIcon size={26} /></div><div className="tsb-box-art" aria-hidden="true"><img src="/reveal-fold.svg" width="160" height="160" alt="" /><span className="tsb-parcel-label">THE WISHLIST<br /><strong>Your selected item.</strong></span><span className="tsb-parcel-postmark">YOUR<br />FIND ↗</span></div><div><h3>Have it delivered.</h3><p>Choose delivery for an eligible win. Add your product options and delivery details, then follow its shipping status in the app.</p><span className="tsb-option-note">Physical delivery currently applies to items worth {shippingMinimum} or more.</span></div></article>
-        <article className="tsb-cash"><div className="tsb-option-heading"><span>Wallet alternative</span><WalletIcon size={26} /></div><div className="tsb-cash-art" aria-hidden="true"><span>50<span>%</span></span><small>of the product value</small><div className="tsb-cash-example"><span>Example item {formatMoney(80)}</span><strong>Wallet alternative {formatMoney(40)}</strong></div></div><div><h3>Take 50% as wallet money.</h3><p>Take 50% of your won item’s recorded value as wallet money instead of shipping. An external withdrawal is a separate request.</p><span className="tsb-option-note">Withdrawal minimums and processing conditions apply.</span></div></article></div>
+        <article className="tsb-cash"><div className="tsb-option-heading"><span>Wallet payout</span><WalletIcon size={26} /></div><div className="tsb-cash-art" aria-hidden="true"><span>50<span>%</span></span><small>of the product value</small><div className="tsb-cash-example"><span>Example item {formatMoney(80)}</span><strong>Wallet payout {formatMoney(40)}</strong></div></div><div><h3>Take half the item’s value.</h3><p>Half the item’s value goes into your TemuSpinBox wallet. To send funds to an external wallet, request a withdrawal.</p><span className="tsb-option-note">Withdrawal minimums and processing conditions apply.</span></div></article></div>
       </section>
 
-      <ReferralPreview onJoin={onUnlockWelcomeCredit} />
-      <ProofRewardsPreview onOpenAccount={onUnlockWelcomeCredit} />
 
       <section className="tsb-faq-section tsb-wrap" id="questions" aria-labelledby="faq-title"><div><p className="tsb-kicker">Before you start</p><h2 id="faq-title">Your questions,<br />answered.</h2><Link to="/legal?tab=terms" className="tsb-text-link">Terms & conditions <ArrowUpRightIcon size={18} /></Link></div><div className="tsb-faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span className="tsb-faq-plus"><PlusIcon size={18} /></span></summary><p>{answer}</p></details>)}</div></section>
 

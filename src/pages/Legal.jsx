@@ -14,7 +14,7 @@ const documents = {
   rules: {
     number: '02',
     title: 'Spin & payout rules',
-    description: 'What each outcome means for your stake, and what happens after a win.',
+    description: 'When a spin costs money, and what happens after a win.',
     icon: ScalesIcon,
   },
   privacy: {
@@ -30,20 +30,20 @@ function getSections(tab, money) {
     ['eligibility', 'Eligibility', 'You must be at least 18 and eligible to participate in your location.'],
     ['independence', 'Independent service', 'TemuSpinBox is an independent service. It is not affiliated with, endorsed by, or sponsored by Temu or Whaleco Inc.'],
     ['account', 'Your account', 'Use an email address you control. The welcome offer is limited to eligible new players. Do not use duplicate accounts or automated tools to obtain extra rewards or manipulate referrals.'],
-    ['paid-play', 'Before a paid round', <>Check the selected item, its price, and the amount at stake before playing. A loss can consume the full stake. Read the <Link to="/legal?tab=rules">spin and payout rules</Link> before you commit money.</>],
+    ['paid-play', 'Before a paid round', <>Review the item, its value, and your stake before playing. A loss consumes the full stake. Read the <Link to="/legal?tab=rules">spin and payout rules</Link> before you commit money.</>],
   ];
 
   if (tab === 'rules') return [
-    ['welcome', 'The welcome spin', <>Eligible new players can complete the free welcome wheel to unlock a reward worth {money(1)}. Verify your email to claim it and play for eligible items worth up to {money(2)}. Paid rounds follow separate rules.</>],
-    ['stake', 'The amount at stake', 'Your wallet balance shows the money held in your account. Your stake is the amount committed to a specific round. Check the item and the stake shown before confirming.'],
+    ['welcome', 'The welcome spin', <>Eligible new accounts receive {money(1)} in welcome credit after email verification. You can use it to play for eligible items worth up to {money(2)}. Paid rounds follow separate rules.</>],
+    ['stake', 'Your stake', 'The wallet sets aside your stake when you start a paid round. A win or loss spends it. If you land on Try again, the stake stays reserved for the same item until the round ends.'],
     ['outcomes', 'The three outcomes', <dl className="tsb-legal-outcomes">
-      <div><dt>Win item</dt><dd>You win the selected item. See the delivery and wallet options below.</dd></div>
-      <div><dt>Lose</dt><dd>You lose the full amount committed to the round.</dd></div>
-      <div><dt>Try again</dt><dd>You can retry that round with the same stake and no second payment.</dd></div>
+      <div><dt>Win item</dt><dd>You spend the stake and win the item. See the delivery and wallet payout options below.</dd></div>
+      <div><dt>Lose</dt><dd>You lose the full stake.</dd></div>
+      <div><dt>Try again</dt><dd>Spin again for the same item using the stake already reserved. You can resume the round later.</dd></div>
     </dl>],
-    ['claim', 'Delivery or wallet money', <>Delivery is available for eligible items worth {money(33)} or more. If you take the wallet option, you receive 50% of the item’s recorded value in your wallet. Moving wallet money out of TemuSpinBox requires a separate withdrawal request.</>],
+    ['claim', 'Delivery or wallet payout', <>Delivery is available for eligible items worth {money(33)} or more. If you take the wallet option, you receive 50% of the item’s recorded value in your wallet. Moving wallet money out of TemuSpinBox requires a separate withdrawal request.</>],
     ['referrals', 'Referral commissions', 'A qualifying deposit can generate commissions across five referral levels. The rates from the first through fifth level are 10%, 5%, 4%, 3%, and 2%. The combined 24% is distributed across the five levels.'],
-    ['proof', 'Proof rewards', 'After an eligible delivery or completed cash-out, you can submit a public post as proof. The submission is reviewed before any reward is approved.'],
+    ['proof', 'Proof rewards', 'After an eligible delivery or a prize payout to your TemuSpinBox wallet, you can submit a public post as proof. The submission is reviewed before any reward is approved.'],
   ];
 
   return [
@@ -51,6 +51,7 @@ function getSections(tab, money) {
     ['payments', 'Deposits and withdrawals', 'Deposits and withdrawals involve wallet addresses and transaction details. Blockchain transaction records are public.'],
     ['delivery', 'Delivery information', 'When you request delivery, your address, phone number and product options are used to fulfill the order. Merchants and delivery providers may receive the details they need to ship it.'],
     ['proof', 'Proof submissions', 'If you submit a public social post for a proof reward, we use the link to review your submission. Check what personal information is visible in the post before sharing it.'],
+    ['support', 'Support requests', 'When you contact us, we use your email address and message to respond. Resend delivers the request to our support inbox.'],
     ['preferences', 'Browser storage', 'TemuSpinBox uses browser storage to remember your display currency and your progress through the welcome wheel.'],
   ];
 }
@@ -109,7 +110,6 @@ export default function Legal() {
         </aside>
 
         <article className="tsb-legal-document" aria-label={title}>
-          {active === 'rules' && <p className="tsb-legal-rules-note">The stake and retry sections describe the planned paid-round flow.</p>}
           {sections.map(([id, label, body], index) => (
             <section key={id} aria-labelledby={id}>
               <span className="tsb-legal-section-no" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>

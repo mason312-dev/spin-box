@@ -58,3 +58,17 @@
   .play-board, .play-account { grid-template-columns: minmax(0, 1fr); }
   .play-heading { margin-bottom: 18px; }
 }
+
+.play-stake { display: grid; gap: 5px; margin-bottom: 10px; }
+.play-stake label { font-size: 14px; font-weight: 700; }
+.play-stake input {
+  width: min(100%, 13rem);
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid #8d7967;
+  border-radius: 4px;
+  background: #f7eddb;
+  color: #30241c;
+  font: inherit;
+  font-size: 16px;
+}

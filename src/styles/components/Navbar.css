@@ -71,3 +71,85 @@
 
 .tsb-nav-dashboard { display: inline-flex; align-items: center; min-height: 44px; color: inherit; font-size: 13px; text-decoration: none; }
 .tsb-nav-dashboard:hover { text-decoration: underline; }
+
+.tsb-app-header { position: sticky; top: 0; z-index: 50; background: #262220; color: #f1eee7; border-bottom: 1px solid #66564b; }
+.tsb-app-nav {
+  width: min(1150px, calc(100% - 48px));
+  margin-inline: auto;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 20px;
+}
+.tsb-app-links, .tsb-app-actions { display: flex; align-items: center; }
+.tsb-app-links { justify-content: center; gap: 2px; }
+.tsb-app-links a, .tsb-app-wallet, .tsb-app-icon {
+  min-height: 44px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.tsb-app-links a[aria-current] { background: #3b2e26; color: #ffb19f; }
+.tsb-app-tab-icon { display: none; }
+.tsb-app-actions { justify-content: end; gap: 7px; }
+.tsb-app-wallet { border-color: #93715f; background: #302720; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tsb-app-wallet svg, .tsb-app-icon svg { flex-shrink: 0; }
+.tsb-app-wallet span { overflow-wrap: anywhere; }
+.tsb-app-icon { min-width: 44px; padding: 6px; color: #e8d6c6; }
+.tsb-app-links a:hover, .tsb-app-icon:hover, .tsb-app-wallet:hover { background: #48362d; }
+.tsb-app-header :focus-visible { outline: 2px solid #ff9d88; outline-offset: 2px; }
+.tsb-app-header .tsb-currency { font-size: 13px; }
+#orders-title, #rewards-title, #referrals-title { scroll-margin-top: 82px; }
+
+@media (max-width: 1040px) {
+  .tsb-app-nav { grid-template-columns: minmax(0, 1fr) auto; padding-top: 7px; gap: 3px 12px; }
+  .tsb-app-links { grid-column: 1 / -1; grid-row: 2; justify-content: start; border-top: 1px solid #51443b; }
+  .tsb-app-actions { grid-column: 2; grid-row: 1; }
+  #orders-title, #rewards-title, #referrals-title { scroll-margin-top: 120px; }
+}
+@media (max-width: 760px) {
+  html:has(.tsb-app-links) {
+    --tsb-tab-space: calc(65px + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom: var(--tsb-tab-space);
+  }
+  body:has(.tsb-app-links) { padding-bottom: var(--tsb-tab-space); }
+  .tsb-app-nav { width: calc(100% - 32px); }
+  .tsb-app-links {
+    position: fixed;
+    inset: auto 0 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px max(8px, env(safe-area-inset-right, 0px))
+      calc(4px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
+    border-top-color: #66564b;
+    background: #262220;
+  }
+  .tsb-app-links a {
+    min-height: 56px;
+    flex-direction: column;
+    gap: 3px;
+    padding: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .tsb-app-tab-icon { display: block; }
+  #orders-title, #rewards-title, #referrals-title { scroll-margin-top: 82px; }
+}
+@media (max-width: 560px) {
+  .tsb-app-header { position: relative; }
+  .tsb-app-nav { grid-template-columns: minmax(0, 1fr); padding-top: 8px; }
+  .tsb-app-actions { grid-column: 1; grid-row: 2; justify-content: start; flex-wrap: wrap; }
+  #orders-title, #rewards-title, #referrals-title { scroll-margin-top: 12px; }
+}

@@ -29,6 +29,9 @@
 .wallet-balances > div { padding-bottom: 9px; border-bottom: 1px dashed #9a826b; min-width: 0; }
 .wallet-balances dt { font-size: 13px; font-weight: 650; }
 .wallet-balances dd { margin: 3px 0 0; font-weight: 750; font-size: clamp(16px, 2vw, 23px); overflow-wrap: anywhere; }
+.wallet-usd { white-space: nowrap; }
+.wallet-balances .wallet-usd { font-size: .75em; font-weight: 650; }
+.wallet-fx-note { margin: -2px 0 14px; font-size: 12px; line-height: 1.4; }
 .wallet-modes { display: grid; gap: 7px; }
 .wallet-control, .wallet-primary {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px;

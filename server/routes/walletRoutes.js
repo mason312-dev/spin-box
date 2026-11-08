@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { supabaseAdmin } from '../config/supabaseAdmin.js';
 import { getOrCreateUserDepositAddress } from '../services/hdWalletService.js';
-import { creditBlockchainDeposit, runDepositWatcherCycle } from '../services/depositWatcher.js';
+import { scanDepositAddress } from '../services/depositWatcher.js';
 
 const router = Router();
 
@@ -49,7 +49,10 @@ router.post('/check-deposits', async (req, res) => {
       return res.status(401).json({ success: false, error: 'Unauthorized.' });
     }
 
-    await runDepositWatcherCycle();
+    const { data: addresses, error } = await supabaseAdmin.from('deposit_addresses')
+      .select('id, user_id, chain, public_address').eq('user_id', user.id);
+    if (error) throw new Error(error.message);
+    for (const address of addresses) await scanDepositAddress(address);
     return res.json({ success: true, message: 'Deposit scan completed.' });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
@@ -64,30 +67,24 @@ router.post('/webhook/deposit', async (req, res) => {
       return res.status(403).json({ success: false, error: 'Forbidden webhook signature.' });
     }
 
-    const { publicAddress, txHash, chain, asset, amountCrypto } = req.body;
-    if (!publicAddress || !txHash || !chain || !asset || !amountCrypto) {
-      return res.status(400).json({ success: false, error: 'Incomplete webhook payload.' });
+    const { publicAddress, chain } = req.body ?? {};
+    if (typeof publicAddress !== 'string' || !publicAddress || typeof chain !== 'string' || !chain) {
+      return res.status(400).json({ success: false, error: 'Deposit address and chain are required.' });
     }
 
-    const { data: addrRow } = await supabaseAdmin
+    const { data: addrRow, error } = await supabaseAdmin
       .from('deposit_addresses')
-      .select('user_id')
+      .select('id, user_id, chain, public_address')
       .eq('public_address', publicAddress)
+      .eq('chain', chain.toUpperCase())
       .maybeSingle();
 
-    if (!addrRow) {
-      return res.status(404).json({ success: false, error: 'Address not registered.' });
-    }
+    if (error) throw new Error(error.message);
+    if (!addrRow) return res.status(404).json({ success: false, error: 'Address not registered.' });
 
-    const result = await creditBlockchainDeposit({
-      userId: addrRow.user_id,
-      txHash,
-      chain,
-      asset,
-      amountCrypto
-    });
-
-    return res.json({ success: true, result });
+    // A webhook only prompts a scan. The scanner gets the amount and transaction from the chain provider.
+    await scanDepositAddress(addrRow);
+    return res.json({ success: true, message: 'Deposit scan completed.' });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }

@@ -1,6 +1,8 @@
+import { Link } from 'react-router';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowDownLeftIcon, ArrowUpRightIcon, CopyIcon, WalletIcon, XIcon } from '@phosphor-icons/react';
 import { useCurrency } from '@/context/CurrencyContext';
+import { formatUsdAmount } from '@/services/currency';
 import { supabase } from '@services/supabaseClient';
 import '@styles/components/CryptoWalletModal.css';
 
@@ -39,7 +41,19 @@ function WalletDialog({ userId, profile, onClose, onBalancesUpdated, uncertain, 
   const [busy, setBusy] = useState(false);
   const dialog = useRef(null);
   const pending = useRef(false);
-  const { formatMoney } = useCurrency();
+  const { currency, rateData } = useCurrency();
+  const [displayFx] = useState(() => ({ currency, rateData }));
+  const ngnRate = displayFx.rateData?.rates.NGN;
+  const [entryCurrency, setEntryCurrency] = useState(() => displayFx.currency === 'NGN' && ngnRate ? 'NGN' : 'USD');
+  const amountUsd = entryCurrency === 'NGN' ? Math.round((Number(amount) / ngnRate) * 100) / 100 : Number(amount);
+  const showLocal = displayFx.currency !== 'USD' && Boolean(displayFx.rateData?.rates[displayFx.currency]);
+  const limitCurrency = entryCurrency === 'NGN' ? 'NGN' : displayFx.currency;
+  function walletAmount(usd, localCurrency = displayFx.currency) {
+    const base = formatUsdAmount(usd, 'USD', null);
+    return localCurrency !== 'USD' && displayFx.rateData?.rates[localCurrency]
+      ? <>{formatUsdAmount(usd, localCurrency, displayFx.rateData)} <span className="wallet-usd">({base})</span></>
+      : base;
+  }
   const balance = Number(source === 'ACCOUNT_CREDITS' ? profile.account_credits : profile.referral_balance);
 
   useEffect(() => {
@@ -62,7 +76,6 @@ function WalletDialog({ userId, profile, onClose, onBalancesUpdated, uncertain, 
   async function withdraw(event) {
     event.preventDefault();
     if (pending.current || uncertain) return;
-    const amountUsd = Number(amount);
     const address = destination.trim();
     if (!Number.isFinite(amountUsd) || amountUsd < minWithdrawalUsd || amountUsd > balance || address.length < 20) {
       setFeedback({ error: 'Check the destination address, minimum withdrawal and available balance.' });
@@ -89,7 +102,7 @@ function WalletDialog({ userId, profile, onClose, onBalancesUpdated, uncertain, 
         return;
       }
       onBalancesUpdated?.(data);
-      setFeedback({ amount: data.amount_usd, id: data.withdrawal_id, asset });
+      setFeedback({ amount: data.amount_usd, id: data.withdrawal_id, asset, currency: limitCurrency });
       setAmount('');
       setDestination('');
     } catch {
@@ -113,9 +126,10 @@ function WalletDialog({ userId, profile, onClose, onBalancesUpdated, uncertain, 
       <div className="wallet-body">
         <aside className="wallet-sidebar">
           <dl className="wallet-balances">
-            <div><dt>Wallet balance</dt><dd>{formatMoney(profile.account_credits)}</dd></div>
-            <div><dt>Referral earnings</dt><dd>{formatMoney(profile.referral_balance)}</dd></div>
+            <div><dt>Wallet balance</dt><dd>{walletAmount(profile.account_credits)}</dd></div>
+            <div><dt>Referral earnings</dt><dd>{walletAmount(profile.referral_balance)}</dd></div>
           </dl>
+          {showLocal && <p className="wallet-fx-note">Local amounts are estimates. Your balance and limits are in USD.</p>}
           <div className="wallet-modes" role="group" aria-label="Wallet actions">
             <button type="button" className="wallet-control" aria-pressed={mode === 'deposit'} disabled={busy} onClick={() => setMode('deposit')}><ArrowDownLeftIcon size={18} /> Deposit</button>
             <button type="button" className="wallet-control" aria-pressed={mode === 'withdraw'} disabled={busy} onClick={() => setMode('withdraw')}><ArrowUpRightIcon size={18} /> Withdraw</button>
@@ -132,7 +146,7 @@ function WalletDialog({ userId, profile, onClose, onBalancesUpdated, uncertain, 
           </select>
 
           {mode === 'deposit' ? (
-            <DepositAddress key={asset.id} userId={userId} asset={asset} />
+            <DepositAddress key={asset.id} userId={userId} asset={asset} minimum={walletAmount(minDepositUsd)} />
           ) : (
             <>
               <form className="wallet-form" onSubmit={withdraw}>
@@ -146,22 +160,32 @@ function WalletDialog({ userId, profile, onClose, onBalancesUpdated, uncertain, 
                   <input id="wallet-destination" type="text" value={destination} required minLength={20} autoComplete="off" spellCheck={false}
                     onChange={(event) => setDestination(event.target.value)} aria-describedby="wallet-network-note" />
                   <p id="wallet-network-note" className="wallet-note">The receiving wallet must support {asset.asset} on {asset.network}.</p>
-                  <label htmlFor="wallet-amount">Amount in USD</label>
-                  <input id="wallet-amount" type="number" min={minWithdrawalUsd} step="0.01" required inputMode="decimal"
+                  {ngnRate && <>
+                    <label htmlFor="wallet-entry-currency">Enter amount in</label>
+                    <select id="wallet-entry-currency" value={entryCurrency} onChange={(event) => {
+                      setEntryCurrency(event.target.value);
+                      setAmount('');
+                    }}>
+                      <option value="NGN">Nigerian naira (NGN)</option>
+                      <option value="USD">US dollars (USD)</option>
+                    </select>
+                  </>}
+                  <label htmlFor="wallet-amount">Amount in {entryCurrency}</label>
+                  <input id="wallet-amount" type="number" min={entryCurrency === 'USD' ? minWithdrawalUsd : 0.01} step="0.01" required inputMode="decimal"
                     value={amount} onChange={(event) => setAmount(event.target.value)} aria-describedby="wallet-amount-note" />
                   <p id="wallet-amount-note" className="wallet-note">
-                    Minimum {formatMoney(minWithdrawalUsd)}. Available {formatMoney(balance)}.
-                    {Number(amount) > 0 && <><br />Entered amount: {formatMoney(Number(amount))}.</>}
+                    Minimum {walletAmount(minWithdrawalUsd, limitCurrency)}.<br />Available {walletAmount(balance, limitCurrency)}.
+                    {Number.isFinite(amountUsd) && amountUsd > 0 && <><br />Wallet debit <strong>{formatUsdAmount(amountUsd, 'USD', null)}</strong>.</>}
                   </p>
                   <button type="submit" className="wallet-primary">{busy ? 'Submitting…' : 'Request withdrawal'}<ArrowUpRightIcon size={18} /></button>
                 </fieldset>
               </form>
-              {uncertain && <p className="wallet-feedback wallet-error" role="alert">We couldn’t confirm the withdrawal request. Check your balance and contact support before trying again.</p>}
+              {uncertain && <p className="wallet-feedback wallet-error" role="alert">We couldn’t confirm the withdrawal request. Check your balance and <Link to="/support" onClick={close}>contact support</Link> before trying again.</p>}
               {feedback?.error && <p className="wallet-feedback wallet-error" role="alert">{feedback.error}</p>}
               {feedback?.id && (
                 <div className="wallet-feedback" role="status">
                   <strong>Withdrawal pending</strong>
-                  <p>{formatMoney(feedback.amount)} via {feedback.asset.asset} on {feedback.asset.network}.</p>
+                  <p>{walletAmount(feedback.amount, feedback.currency)} via {feedback.asset.asset} on {feedback.asset.network}.</p>
                   <p>Request reference: <code>{feedback.id}</code></p>
                 </div>
               )}
@@ -173,11 +197,10 @@ function WalletDialog({ userId, profile, onClose, onBalancesUpdated, uncertain, 
   );
 }
 
-function DepositAddress({ userId, asset }) {
+function DepositAddress({ userId, asset, minimum }) {
   const [result, setResult] = useState(null);
   const [attempt, setAttempt] = useState(0);
   const [copyStatus, setCopyStatus] = useState('');
-  const { formatMoney } = useCurrency();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -227,7 +250,7 @@ function DepositAddress({ userId, asset }) {
 
   return (
     <div className="wallet-deposit">
-      <p className="wallet-note">Send only {asset.asset} on {asset.network} to this address. Minimum deposit {formatMoney(minDepositUsd)}.</p>
+      <p className="wallet-note">Send only {asset.asset} on {asset.network} to this address. Minimum deposit {minimum}.</p>
       {!result && <p className="wallet-feedback" role="status">Loading deposit address…</p>}
       {result?.error && (
         <div className="wallet-feedback wallet-error">

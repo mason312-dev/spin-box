@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PackageIcon, TicketIcon, WalletIcon } from '@phosphor-icons/react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { supabase } from '@services/supabaseClient';
@@ -10,7 +10,7 @@ import ReferralTree from '@components/ReferralTree';
 import FulfillmentModal from '@components/FulfillmentModal';
 import '@styles/pages/Dashboard.css';
 
-const CURRENT_SPIN_COST_USD = 1;
+const MIN_STAKE_USD = 1;
 const starterItem = { title: 'Welcome Starter Item', priceUsd: 2 };
 
 export default function Dashboard({
@@ -26,13 +26,27 @@ export default function Dashboard({
   const [roundBusy, setRoundBusy] = useState(false);
   const [checkingItem, setCheckingItem] = useState(false);
   const [roundUncertain, setRoundUncertain] = useState(false);
+  const [retryRound, setRetryRound] = useState(null);
+  const [roundState, setRoundState] = useState('loading');
+  const [stakeInput, setStakeInput] = useState('');
+  const requestId = useRef(null);
   const { formatMoney } = useCurrency();
   const balance = Number(profile.account_credits);
-  const target = selectedProduct ?? starterItem;
-  const itemLocked = selectedProduct?.validation?.isEligibleToSpin === false
-    && balance <= selectedProduct.checkedBalance;
-  const needsDeposit = balance < CURRENT_SPIN_COST_USD || itemLocked;
-  const amountCharged = formatMoney(CURRENT_SPIN_COST_USD);
+  const target = retryRound ? {
+    title: retryRound.product_title,
+    priceUsd: retryRound.retail_value_usd,
+    imageUrl: retryRound.image_url,
+  } : selectedProduct ?? starterItem;
+  const stake = retryRound ? Number(retryRound.stake_usd) : selectedProduct ? Number(stakeInput) : MIN_STAKE_USD;
+  const validStake = retryRound || !selectedProduct || (
+    /^\d+(?:\.\d{1,2})?$/.test(stakeInput) && stake >= MIN_STAKE_USD && stake <= 99999999.99
+  );
+  const multiplier = stake >= 101 ? 7 : stake >= 5 ? 5 : 2;
+  const itemLocked = !retryRound && validStake && Math.round(stake * 100) * multiplier < Math.round(Number(target.priceUsd) * 100);
+  const needsDeposit = !retryRound && validStake && stake > balance;
+  const amountCharged = validStake ? formatMoney(stake) : 'Enter stake';
+  const roundBlocked = roundState !== 'ready' || (!roundUncertain && (!validStake || needsDeposit || itemLocked));
+  const pickLocked = roundBusy || roundUncertain || Boolean(retryRound) || roundState !== 'ready';
   const [wins, setWins] = useState([]);
   const [activeWinModal, setActiveWinModal] = useState(null);
   const [refreshTick, setRefreshTick] = useState(0);
@@ -85,60 +99,75 @@ export default function Dashboard({
     };
   }, [userId, refreshTick]);
 
+  useEffect(() => {
+    if (!userId) return undefined;
+    let ignore = false;
+    async function loadRound() {
+      try {
+        const { data, error } = await supabase.from('paid_rounds').select('*')
+          .eq('user_id', userId).eq('status', 'RETRY').maybeSingle();
+        if (ignore) return;
+        if (error) throw error;
+        setRetryRound(data);
+        setRoundState('ready');
+      } catch {
+        if (!ignore) setRoundState('error');
+      }
+    }
+    void loadRound();
+    return () => { ignore = true; };
+  }, [userId]);
+
   async function handleRequestServerSpin() {
     setSpinStatus(null);
+    requestId.current ??= crypto.randomUUID();
     try {
-      const { data, error } = await supabase.rpc('execute_paid_spin', {
-        p_product_title: target.title,
-        p_retail_value_usd: target.priceUsd,
+      const { data, error, status } = await supabase.rpc('play_paid_round', {
+        p_request_id: requestId.current,
+        p_round_id: retryRound?.id ?? null,
+        p_product_id: selectedProduct?.id ?? null,
+        p_expected_price_usd: Number(target.priceUsd),
+        p_stake_usd: stake,
       });
-      if (!error && data) return data;
-      if (error?.message?.includes('Insufficient spin credits')) {
-        setSpinStatus({ title: 'Wallet balance too low', text: 'Add funds before starting a round.' });
-        return null;
-      }
-      if (error?.message?.includes('exceeds your current tier cap')) {
-        setSpinStatus({ title: 'Item exceeds your current limit', text: 'Check the item again or add funds before spinning.' });
+      if (!error && data?.round && data?.spin_record) return data;
+      if (status === 400 && error?.code === 'P0001') {
+        requestId.current = null;
+        setRoundUncertain(false);
+        if (error.message.startsWith('Round changed.')) setRoundState('error');
+        setSpinStatus({ title: 'Round unavailable', text: error.message });
         return null;
       }
     } catch {
-      // A transport failure can arrive after the server records the round.
+      // Reusing the request ID recovers a response lost after the database committed.
     }
     setRoundUncertain(true);
     setSpinStatus({
       title: 'Round result unavailable',
-      text: 'Check your wallet and orders before starting another round.',
+      text: 'Check the result again to recover this request without a second charge.',
     });
     return null;
   }
 
   function handleDashboardSpinComplete(result) {
+    requestId.current = null;
+    setRoundUncertain(false);
     if (result.account_credits != null && Number.isFinite(Number(result.account_credits))) {
       onBalanceChange(result.account_credits);
     }
-    const charge = Number(result.spin_record?.spin_cost_credits ?? CURRENT_SPIN_COST_USD);
+    setRetryRound(result.round.status === 'RETRY' ? result.round : null);
+    const charge = Number(result.round.stake_usd);
     if (result.outcome === 'TRY_AGAIN') {
-      setSpinStatus({ title: 'Try again', text: 'No charge for this spin. You can choose to spin again.' });
+      setSpinStatus({ title: 'Try again', text: 'Your stake is held for this item. Spin again at no extra cost.' });
       return;
     }
     if (result.outcome === 'LOSE') {
-      setSpinStatus({ title: 'You didn’t win', charge });
+      setSpinStatus({ title: 'You didn’t win', text: `You lost your ${formatMoney(charge)} stake.` });
       return;
     }
-    if (result.outcome === 'WIN' && result.spin_record) {
-      const wonRecord = {
-        ...result.spin_record,
-        image_url: target.imageUrl || '',
-        currency: target.currency || 'USD',
-        display_price: target.displayPrice || formatMoney(result.spin_record.retail_value_usd),
-      };
-      setWins((previous) => [wonRecord, ...previous]);
-      setActiveWinModal(wonRecord);
-      setSpinStatus({ title: 'You won the item', charge, text: 'See your claim options in Orders.' });
-      return;
-    }
-    setRoundUncertain(true);
-    setSpinStatus({ title: 'Round result unavailable', text: 'Check your wallet and orders before starting another round.' });
+    const wonRecord = { ...result.spin_record, image_url: result.round.image_url };
+    setWins((previous) => [wonRecord, ...previous.filter((win) => win.id !== wonRecord.id)]);
+    setActiveWinModal(wonRecord);
+    setSpinStatus({ title: 'You won the item', text: 'See your claim options in Orders.' });
   }
 
   function handleFulfillmentComplete(result) {
@@ -191,9 +220,13 @@ export default function Dashboard({
             <h2 id="play-pick-heading">What are you playing for?</h2>
             <TemuInspector
               userDepositBalance={balance}
-              disabled={roundBusy}
+              disabled={pickLocked}
               onLoadingChange={setCheckingItem}
-              onSelectProduct={(product) => setSelectedProduct({ ...product, checkedBalance: balance })}
+              onSelectProduct={(product) => {
+                setSelectedProduct(product);
+                setStakeInput('');
+                setSpinStatus(null);
+              }}
             />
             <div className="play-product">
               <div className="play-product-image">
@@ -201,11 +234,11 @@ export default function Dashboard({
                 <PackageIcon size={42} weight="light" />
               </div>
               <div>
-                <p className="play-kicker">{selectedProduct ? 'Selected item' : 'Starter item'}</p>
+                <p className="play-kicker">{retryRound ? 'Reserved for this round' : selectedProduct ? 'Selected item' : 'Starter item'}</p>
                 <h3>{target.title}</h3>
                 <p className="play-product-price">{formatMoney(Number(target.priceUsd))}</p>
-                {selectedProduct && (
-                  <button type="button" className="play-link" disabled={roundBusy || checkingItem} onClick={() => setSelectedProduct(null)}>
+                {selectedProduct && !retryRound && (
+                  <button type="button" className="play-link" disabled={pickLocked || checkingItem} onClick={() => setSelectedProduct(null)}>
                     Use starter item
                   </button>
                 )}
@@ -217,9 +250,20 @@ export default function Dashboard({
                 <h3>Round review</h3>
                 <dl>
                   <div><dt>Item value</dt><dd>{formatMoney(Number(target.priceUsd))}</dd></div>
-                  <div><dt>Spin cost</dt><dd>{amountCharged}</dd></div>
+                  <div><dt>{retryRound ? 'Reserved stake' : 'Stake'}</dt><dd>{amountCharged}</dd></div>
                 </dl>
-                <p>Win or Lose deducts the spin cost. Try Again deducts nothing.</p>
+                {selectedProduct && !retryRound && (
+                  <div className="play-stake">
+                    <label htmlFor="play-stake">Enter stake in USD</label>
+                    <input id="play-stake" type="text" inputMode="decimal" placeholder="1.00"
+                      disabled={pickLocked || checkingItem} value={stakeInput}
+                      onChange={(event) => setStakeInput(event.target.value)} />
+                  </div>
+                )}
+                <p>{retryRound
+                  ? 'Your next spin uses the stake already held for this item.'
+                  : 'Win or lose, the stake is spent. If you land on Try again, you can spin for this item at no extra cost.'}</p>
+                {itemLocked && <p className="play-ticket-note">Enter a higher stake to play for this item.</p>}
                 {needsDeposit && <p className="play-ticket-note">Add funds to play for this item.</p>}
               </div>
             </div>
@@ -232,17 +276,20 @@ export default function Dashboard({
               onRequestServerSpin={handleRequestServerSpin}
               onSpinResult={handleDashboardSpinComplete}
               onBusyChange={setRoundBusy}
-              buttonText={roundUncertain ? 'Round unavailable' : checkingItem ? 'Checking item…' : `Spin for ${amountCharged}`}
-              disabled={Boolean(needsDeposit || checkingItem || roundUncertain)}
+              buttonText={roundUncertain ? 'Check round result' : retryRound ? 'Spin again' : checkingItem ? 'Checking item…' : validStake ? `Stake ${amountCharged} and spin` : 'Enter a stake to spin'}
+              disabled={Boolean(roundBlocked || checkingItem)}
             />
             {needsDeposit && !roundUncertain && (
               <button type="button" className="play-secondary play-add" onClick={onOpenDeposit}>Add funds</button>
+            )}
+            {roundState === 'loading' && <p role="status">Checking for an open round…</p>}
+            {roundState === 'error' && (
+              <button type="button" className="play-secondary play-add" onClick={() => window.location.reload()}>Reload to check your round</button>
             )}
             <div className="play-result" role="status" aria-atomic="true">
               {spinStatus && (
                 <>
                   <strong>{spinStatus.title}</strong>
-                  {spinStatus.charge !== undefined && <p>{formatMoney(spinStatus.charge)} deducted from your wallet.</p>}
                   {spinStatus.text && <p>{spinStatus.text}</p>}
                 </>
               )}

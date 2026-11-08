@@ -40,7 +40,7 @@ export default function TemuInspector({ userDepositBalance, onSelectProduct, onL
       });
       const result = await response.json();
       const price = Number(result.data?.priceUsd);
-      if (!response.ok || !result.success || !result.data?.title || !Number.isFinite(price) || price <= 0) {
+      if (!response.ok || !result.success || !result.data?.id || !result.data?.title || !Number.isFinite(price) || price <= 0) {
         setError('We couldn’t check that item. Check the link or try again.');
         return;
       }
